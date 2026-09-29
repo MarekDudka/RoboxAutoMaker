@@ -1,5 +1,7 @@
 # AutoMakerOS
 
+[![Latest release](https://img.shields.io/github/v/release/MarekDudka/RoboxAutoMaker)](https://github.com/MarekDudka/RoboxAutoMaker/releases/latest)
+
 AutoMakerOS is the open-source software suite used to drive **Robox** 3D printers, originally developed by **C Enterprise (UK) Ltd (CEL-UK)**. This repository combines the individual Robox software components into a single tree:
 
 | Module | Purpose |
