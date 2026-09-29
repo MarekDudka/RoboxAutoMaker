@@ -124,7 +124,9 @@ macOS should work the same way as Linux (JavaFX build + `libertySystems.configFi
 
 For a distro-independent way to run AutoMaker on Linux without wrangling JDK/JavaFX versions by hand, [Installer/AutoMaker/AppImage/build-appimage.sh](Installer/AutoMaker/AppImage/build-appimage.sh) packages a built AutoMaker, a matching JavaFX runtime, a minimal bundled JRE (built with `jlink`, no system Java required to *run* it) and its resource files into a single self-contained `AutoMaker-<version>-x86_64.AppImage`.
 
-To build it, after building AutoMaker itself (see Compiling above):
+Pre-built AppImages are published on the [Releases page](https://github.com/MarekDudka/RoboxAutoMaker/releases/latest) — download it, `chmod +x`, and run, no build required.
+
+To build it yourself, after building AutoMaker itself (see Compiling above):
 
 ```bash
 Installer/AutoMaker/AppImage/build-appimage.sh
