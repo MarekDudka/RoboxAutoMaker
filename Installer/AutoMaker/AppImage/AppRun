@@ -1,0 +1,45 @@
+#!/bin/bash
+# AppRun launcher for AutoMaker (Robox 3D printer control software).
+set -e
+
+HERE="$(dirname "$(readlink -f "${0}")")"
+APPROOT="$HERE/usr/share/automaker"
+JAVA="$APPROOT/jre/bin/java"
+
+# The install directory (icons, language files, EULA, etc.) is only known at
+# runtime, since the AppImage is mounted/extracted to a different path each
+# run. Resolve it here and write a throwaway config file with the real path.
+CONFIG_RUNTIME="$(mktemp "${TMPDIR:-/tmp}/AutoMaker.configFile.XXXXXX.xml")"
+trap 'rm -f "$CONFIG_RUNTIME"' EXIT
+sed "s#@AUTOMAKER_INSTALL_DIR@#$APPROOT/Installer/AutoMaker/#g" \
+    "$APPROOT/app/AutoMaker.appimage.configFile.xml" > "$CONFIG_RUNTIME"
+
+# JavaFX (21) ships as separate modules; the app itself, and a couple of its
+# third-party UI libraries (ControlsFX, JFXtras), reach into JavaFX internals
+# that the module system hides by default, hence the --add-exports below.
+# (Not exec'd, so the trap above still cleans up the generated config file.)
+"$JAVA" \
+    --module-path "$APPROOT/javafx" \
+    --add-modules javafx.controls,javafx.fxml,javafx.media,javafx.swing,javafx.web \
+    --enable-native-access=javafx.graphics,javafx.media,javafx.web \
+    --add-exports javafx.graphics/com.sun.javafx.application=ALL-UNNAMED \
+    --add-exports javafx.graphics/com.sun.javafx.geom=ALL-UNNAMED \
+    --add-exports javafx.graphics/com.sun.javafx.geom.transform=ALL-UNNAMED \
+    --add-exports javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED \
+    --add-exports javafx.graphics/com.sun.javafx.scene.shape=ALL-UNNAMED \
+    --add-exports javafx.graphics/com.sun.javafx.scene.text=ALL-UNNAMED \
+    --add-exports javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED \
+    --add-exports javafx.graphics/com.sun.javafx.util=ALL-UNNAMED \
+    --add-exports javafx.graphics/com.sun.javafx.css=ALL-UNNAMED \
+    --add-exports javafx.graphics/com.sun.javafx.stage=ALL-UNNAMED \
+    --add-exports javafx.controls/com.sun.javafx.scene.control=ALL-UNNAMED \
+    --add-exports javafx.controls/com.sun.javafx.scene.control.behavior=ALL-UNNAMED \
+    --add-exports javafx.controls/com.sun.javafx.scene.control.inputmap=ALL-UNNAMED \
+    --add-exports javafx.base/com.sun.javafx.event=ALL-UNNAMED \
+    --add-exports javafx.base/com.sun.javafx.collections=ALL-UNNAMED \
+    --add-exports javafx.base/com.sun.javafx.runtime=ALL-UNNAMED \
+    --add-exports javafx.base/com.sun.javafx.binding=ALL-UNNAMED \
+    -DlibertySystems.configFile="$CONFIG_RUNTIME" \
+    -cp "$APPROOT/app/AutoMaker.jar:$APPROOT/app/lib/*" \
+    celtech.automaker.AutoMaker "$@"
+exit $?

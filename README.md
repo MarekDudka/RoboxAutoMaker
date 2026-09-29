@@ -19,6 +19,28 @@ AutoMakerOS is the open-source software suite used to drive **Robox** 3D printer
 
 AutoMaker is a desktop application (Windows / macOS / Linux, built with Java and JavaFX) that lets you prepare and send 3D models to a Robox printer: it imports models, slices them into GCode, previews the result, and manages printing, calibration and printer/filament/head settings. Root and GRoot extend this to a network-attached Raspberry Pi that can host the printer connection and be controlled remotely (e.g. via a touchscreen or a browser).
 
+## Screenshots
+
+<!-- GitHub's Markdown renderer strips JavaScript, so there's no real slider — this table is wider than the page and scrolls horizontally instead, giving a carousel-like filmstrip. Click any image to view it full size. -->
+<p align="center"><i>Scroll sideways to see more &rarr;</i></p>
+
+<table>
+<tr>
+<td align="center" width="260"><a href="Screenshots/RoboxAutoMaker.png"><img src="Screenshots/RoboxAutoMaker.png" width="240" alt="AutoMaker main window"></a><br><sub>Main window</sub></td>
+<td align="center" width="260"><a href="Screenshots/ModelView.png"><img src="Screenshots/ModelView.png" width="240" alt="Model view"></a><br><sub>Model / build view</sub></td>
+<td align="center" width="260"><a href="Screenshots/LibraryFilaments.png"><img src="Screenshots/LibraryFilaments.png" width="240" alt="Filament library"></a><br><sub>Filament library</sub></td>
+<td align="center" width="260"><a href="Screenshots/LibraryPrintProfiles.png"><img src="Screenshots/LibraryPrintProfiles.png" width="240" alt="Print profile library"></a><br><sub>Print profile library</sub></td>
+<td align="center" width="260"><a href="Screenshots/LibraryCameraProfiles.png"><img src="Screenshots/LibraryCameraProfiles.png" width="240" alt="Camera profile library"></a><br><sub>Camera profile library</sub></td>
+<td align="center" width="260"><a href="Screenshots/PreferencesPrinting.png"><img src="Screenshots/PreferencesPrinting.png" width="240" alt="Preferences - Printing"></a><br><sub>Preferences – Printing</sub></td>
+<td align="center" width="260"><a href="Screenshots/PreferencesAdvanced.png"><img src="Screenshots/PreferencesAdvanced.png" width="240" alt="Preferences - Advanced"></a><br><sub>Preferences – Advanced</sub></td>
+<td align="center" width="260"><a href="Screenshots/PreferencesEnvironment.png"><img src="Screenshots/PreferencesEnvironment.png" width="240" alt="Preferences - Environment"></a><br><sub>Preferences – Environment</sub></td>
+<td align="center" width="260"><a href="Screenshots/PreferencesNetwork.png"><img src="Screenshots/PreferencesNetwork.png" width="240" alt="Preferences - Network"></a><br><sub>Preferences – Network</sub></td>
+<td align="center" width="260"><a href="Screenshots/PreferencesOfflinePrinter.png"><img src="Screenshots/PreferencesOfflinePrinter.png" width="240" alt="Preferences - Offline printer"></a><br><sub>Preferences – Offline printer</sub></td>
+<td align="center" width="260"><a href="Screenshots/PreferencesMaintenance.png"><img src="Screenshots/PreferencesMaintenance.png" width="240" alt="Preferences - Maintenance"></a><br><sub>Preferences – Maintenance</sub></td>
+<td align="center" width="260"><a href="Screenshots/PreferencesHeadEEPROM.png"><img src="Screenshots/PreferencesHeadEEPROM.png" width="240" alt="Preferences - Head EEPROM"></a><br><sub>Preferences – Head EEPROM</sub></td>
+</tr>
+</table>
+
 ## History, provenance and licence
 
 This software was originally created by CEL-UK (C Enterprise (UK) Ltd) to support their Robox 3D printer range, and was later released as open source.
@@ -98,9 +120,26 @@ AutoMaker and the other applications are plain Java/JavaFX applications, so they
 
 macOS should work the same way as Linux (JavaFX build + `libertySystems.configFile` pointed at a mac-appropriate config), though it has had less recent testing than Linux/Windows.
 
+### AppImage (Linux)
+
+For a distro-independent way to run AutoMaker on Linux without wrangling JDK/JavaFX versions by hand, [Installer/AutoMaker/AppImage/build-appimage.sh](Installer/AutoMaker/AppImage/build-appimage.sh) packages a built AutoMaker, a matching JavaFX runtime, a minimal bundled JRE (built with `jlink`, no system Java required to *run* it) and its resource files into a single self-contained `AutoMaker-<version>-x86_64.AppImage`.
+
+To build it, after building AutoMaker itself (see Compiling above):
+
+```bash
+Installer/AutoMaker/AppImage/build-appimage.sh
+```
+
+This needs `jlink` (part of any JDK) and [appimagetool](https://github.com/AppImage/AppImageKit/releases) (on `$PATH`, or pointed to via `$APPIMAGETOOL`). The resulting AppImage is written to `dist/`; run it directly, e.g.:
+
+```bash
+chmod +x dist/AutoMaker-*.AppImage
+dist/AutoMaker-*.AppImage
+```
+
 ## Using AutoMaker
 
-1. Launch AutoMaker as shown above (or via a proper install, once packaged — see [DEVELOPER_NOTES.md](DEVELOPER_NOTES.md) for the historical installer process).
+1. Launch AutoMaker as shown above, or via the AppImage (see above), or via a proper install once packaged (see [DEVELOPER_NOTES.md](DEVELOPER_NOTES.md) for the historical installer process).
 2. Connect a Robox printer over USB (or a Root-connected printer over the network); AutoMaker will detect and let you select it.
 3. Load a 3D model (e.g. STL) into the workspace, position/scale/rotate it as needed.
 4. Choose print settings (material, quality, support, etc.) and slice the model; the result can be previewed with the built-in GCode viewer before printing.

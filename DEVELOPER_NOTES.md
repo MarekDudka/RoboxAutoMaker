@@ -1,6 +1,6 @@
 # Developer Notes
 
-These are internal engineering notes inherited from the original CEL-UK project (see [README.md](README.md) for the general project overview, provenance, license and basic build/run instructions). They cover CEL's own release/installer process and the Raspberry Pi based "Root" controller, and reference internal CEL infrastructure (build servers, download URLs, install layouts) that is no longer available. They are kept here for historical and technical reference only.
+These are internal engineering notes inherited from the original CEL-UK project (see [README.md](README.md) for the general project overview, provenance, license and basic build/run instructions, and [README.md#screenshots](README.md#screenshots) for screenshots of the application). They cover CEL's own release/installer process and the Raspberry Pi based "Root" controller, and reference internal CEL infrastructure (build servers, download URLs, install layouts) that is no longer available. They are kept here for historical and technical reference only.
 
 The open-source version of the software is "a work in progress".
 

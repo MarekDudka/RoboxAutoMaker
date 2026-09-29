@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=AutoMaker
+GenericName=Robox 3D Printer Control
+Comment=Control software for Robox 3D printers (load, slice, preview and print models)
+Exec=AppRun %F
+Icon=AutoMaker
+Categories=Graphics;3DGraphics;Engineering;
+Terminal=false
+StartupNotify=true
