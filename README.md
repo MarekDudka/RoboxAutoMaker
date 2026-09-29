@@ -23,7 +23,14 @@ AutoMaker is a desktop application (Windows / macOS / Linux, built with Java and
 
 ## Screenshots
 
-<!-- GitHub's Markdown renderer strips JavaScript, so there's no real slider — this table is wider than the page and scrolls horizontally instead, giving a carousel-like filmstrip. Click any image to view it full size. -->
+<!-- GitHub's Markdown renderer strips JavaScript and CSS/SMIL animation control, so there's no way to
+     feature-detect and run a real JS/HTML5 carousel here. An animated GIF is the one "moving carousel"
+     format that just works, with no script, in every Markdown renderer (GitHub, GitLab, IDEs, etc). -->
+<p align="center"><img src="Screenshots/carousel.gif" width="720" alt="AutoMaker screenshots (animated slideshow): main window, model view, filament/print/camera profile libraries, and preferences panes"></p>
+
+<details>
+<summary>Individual screenshots</summary>
+
 <p align="center"><i>Scroll sideways to see more &rarr;</i></p>
 
 <table>
@@ -42,6 +49,8 @@ AutoMaker is a desktop application (Windows / macOS / Linux, built with Java and
 <td align="center" width="260"><a href="Screenshots/PreferencesHeadEEPROM.png"><img src="Screenshots/PreferencesHeadEEPROM.png" width="240" alt="Preferences - Head EEPROM"></a><br><sub>Preferences – Head EEPROM</sub></td>
 </tr>
 </table>
+
+</details>
 
 ## History, provenance and licence
 
