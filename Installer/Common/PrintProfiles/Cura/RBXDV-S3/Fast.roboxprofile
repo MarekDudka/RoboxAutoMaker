@@ -1,0 +1,23 @@
+//==============
+//MetaData
+//==============
+profileName=Fast
+headType=RBXDV-S3
+
+//==============
+//Extrusion
+//==============
+// Normal layer height and walls; lighter infill
+fillDensity_normalised=0.2
+
+//==============
+//speed
+//==============
+// Only internal features are sped up. First layer, external perimeters,
+// small perimeters, top surfaces and bridges keep the Normal speeds so the
+// visible surface quality is unchanged.
+perimeterSpeed_mm_per_s=40
+fillSpeed_mm_per_s=50
+solidFillSpeed_mm_per_s=40
+supportSpeed_mm_per_s=50
+gapFillSpeed_mm_per_s=30
