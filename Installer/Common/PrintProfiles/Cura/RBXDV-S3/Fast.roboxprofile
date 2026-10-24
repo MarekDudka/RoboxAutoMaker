@@ -27,5 +27,5 @@ gapFillSpeed_mm_per_s=30
 //==============
 // Raises speed of inner perimeters, infill and support on moves that are below
 // this volumetric flow (mm3/s), capped at the speed below. 0 disables it.
-maxVolumetricFlow_mm3_per_s=6
+maxVolumetricFlow_mm3_per_s=5
 flowLimitMaxSpeed_mm_per_s=70
