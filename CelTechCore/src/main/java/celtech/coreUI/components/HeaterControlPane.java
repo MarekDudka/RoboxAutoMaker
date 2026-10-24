@@ -2,6 +2,7 @@ package celtech.coreUI.components;
 
 import celtech.Lookup;
 import celtech.roboxbase.configuration.PostPrintHeaterSettings;
+import celtech.roboxbase.printerControl.model.HeaterMode;
 import celtech.roboxbase.printerControl.PrinterStatus;
 import celtech.roboxbase.printerControl.model.Head;
 import celtech.roboxbase.printerControl.model.NozzleHeater;
@@ -47,6 +48,12 @@ public class HeaterControlPane extends VBox
 
     private Printer printer = null;
     private boolean ledWarningActive = false;
+
+    // Heater targets seen while printing, used to restore them if the print's own
+    // G-code switched the heaters off (it was generated before "keep warm" was enabled)
+    private PrinterStatus lastStatus = null;
+    private final int[] lastNozzleTargets = new int[2];
+    private int lastBedTarget = 0;
 
     public HeaterControlPane()
     {
@@ -110,6 +117,10 @@ public class HeaterControlPane extends VBox
             restoreLED();
         }
         printer = newPrinter;
+        lastStatus = null;
+        lastNozzleTargets[0] = 0;
+        lastNozzleTargets[1] = 0;
+        lastBedTarget = 0;
         refresh();
     }
 
@@ -136,6 +147,8 @@ public class HeaterControlPane extends VBox
             return;
         }
 
+        restoreHeatersIfPrintSwitchedThemOff();
+
         int nozzleTemp = getMaxNozzleTemperature();
         int bedTemp = printer.getPrinterAncillarySystems().bedTemperatureProperty().get();
         boolean idle = printer.printerStatusProperty().get() == PrinterStatus.IDLE;
@@ -156,6 +169,64 @@ public class HeaterControlPane extends VBox
         setManaged(true);
 
         updateLED(showWarning && PostPrintHeaterSettings.isKeepHeatersOnAfterPrint());
+    }
+
+    /**
+     * The finish-of-print macro is part of the G-code that was generated when the
+     * print was sliced. If "keep warm" was enabled after that, the macro still
+     * switches the heaters off. When the print ends, put back the heaters that are
+     * off but still hot.
+     */
+    private void restoreHeatersIfPrintSwitchedThemOff()
+    {
+        PrinterStatus status = printer.printerStatusProperty().get();
+        Head head = printer.headProperty().get();
+
+        if (status == PrinterStatus.PRINTING_PROJECT)
+        {
+            if (head != null)
+            {
+                for (int i = 0; i < Math.min(2, head.getNozzleHeaters().size()); i++)
+                {
+                    int target = head.getNozzleHeaters().get(i).nozzleTargetTemperatureProperty().get();
+                    if (target > 0)
+                    {
+                        lastNozzleTargets[i] = target;
+                    }
+                }
+            }
+            int bedTarget = printer.getPrinterAncillarySystems().bedTargetTemperatureProperty().get();
+            if (bedTarget > 0)
+            {
+                lastBedTarget = bedTarget;
+            }
+        } else if (lastStatus != null && lastStatus != PrinterStatus.IDLE
+                && status == PrinterStatus.IDLE
+                && PostPrintHeaterSettings.isKeepHeatersOnAfterPrint())
+        {
+            if (head != null)
+            {
+                for (int i = 0; i < Math.min(2, head.getNozzleHeaters().size()); i++)
+                {
+                    NozzleHeater heater = head.getNozzleHeaters().get(i);
+                    if (lastNozzleTargets[i] > 0
+                            && heater.heaterModeProperty().get() == HeaterMode.OFF
+                            && heater.nozzleTemperatureProperty().get() >= HOT_THRESHOLD_C)
+                    {
+                        steno.info("Restoring nozzle " + i + " heater to " + lastNozzleTargets[i]);
+                        printer.setNozzleHeaterTargetTemperature(i, lastNozzleTargets[i]);
+                    }
+                }
+            }
+            if (lastBedTarget > 0
+                    && printer.getPrinterAncillarySystems().bedHeaterModeProperty().get() == HeaterMode.OFF
+                    && printer.getPrinterAncillarySystems().bedTemperatureProperty().get() >= HOT_THRESHOLD_C)
+            {
+                steno.info("Restoring bed heater to " + lastBedTarget);
+                printer.setBedTargetTemperature(lastBedTarget);
+            }
+        }
+        lastStatus = status;
     }
 
     private void updateLED(boolean warn)
