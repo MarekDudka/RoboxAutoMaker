@@ -35,9 +35,13 @@ public class Preferences
         Preference detectFilamentLoadedPref = new TickBoxPreference(userPreferences.
                 detectLoadedFilamentProperty(), "preferences.detectLoadedFilament");
 
+        Preference keepHeatersOnPref = new TickBoxPreference(userPreferences.keepHeatersOnAfterPrintProperty(),
+                "preferences.keepHeatersOnAfterPrint");
+
         preferences.add(slicerTypePref);
         preferences.add(safetyFeaturesOnPref);
         preferences.add(detectFilamentLoadedPref);
+        preferences.add(keepHeatersOnPref);
 
         return preferences;
     }

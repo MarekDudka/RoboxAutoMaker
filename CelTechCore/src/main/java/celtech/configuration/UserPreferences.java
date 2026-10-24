@@ -7,6 +7,7 @@ import celtech.roboxbase.ApplicationFeature;
 import celtech.roboxbase.BaseLookup;
 import celtech.roboxbase.comms.RoboxCommsManager;
 import celtech.roboxbase.configuration.BaseConfiguration;
+import celtech.roboxbase.configuration.PostPrintHeaterSettings;
 import celtech.roboxbase.configuration.SlicerType;
 import celtech.roboxbase.configuration.datafileaccessors.HeadContainer;
 import celtech.roboxbase.configuration.hardwarevariants.PrinterType;
@@ -46,6 +47,7 @@ public class UserPreferences
     private final BooleanProperty showMetricUnits = new SimpleBooleanProperty(true);
     private final BooleanProperty searchForRemoteCameras = new SimpleBooleanProperty(true);
     private final BooleanProperty loosePartSplitOnLoad = new SimpleBooleanProperty(false);
+    private final BooleanProperty keepHeatersOnAfterPrint = new SimpleBooleanProperty(false);
     private final BooleanProperty autoGCodePreview = new SimpleBooleanProperty(true);
     private final BooleanProperty customPrinterEnabled = new SimpleBooleanProperty(false);
     private final ObjectProperty<PrinterType> customPrinterType = new SimpleObjectProperty<>(PrinterType.ROBOX);
@@ -118,6 +120,8 @@ public class UserPreferences
         showMetricUnits.set(userPreferenceFile.isShowMetricUnits());
         searchForRemoteCameras.set(userPreferenceFile.isSearchForRemoteCameras());
         loosePartSplitOnLoad.set(userPreferenceFile.isLoosePartSplitOnLoad());
+        keepHeatersOnAfterPrint.set(userPreferenceFile.isKeepHeatersOnAfterPrint());
+        PostPrintHeaterSettings.setKeepHeatersOnAfterPrint(keepHeatersOnAfterPrint.get());
         customPrinterEnabled.set(userPreferenceFile.isCustomPrinterEnabled());
         customPrinterType.set(userPreferenceFile.getCustomPrinterType());
         customPrinterHead.set(userPreferenceFile.getCustomPrinterHead());
@@ -136,6 +140,11 @@ public class UserPreferences
         showMetricUnits.addListener(booleanChangeListener);
         searchForRemoteCameras.addListener(booleanChangeListener);
         loosePartSplitOnLoad.addListener(booleanChangeListener);
+        keepHeatersOnAfterPrint.addListener((observable, oldValue, newValue) ->
+        {
+            PostPrintHeaterSettings.setKeepHeatersOnAfterPrint(newValue);
+            saveSettings();
+        });
         customPrinterEnabled.addListener(enableCustomPrinterChangeListener);
     }
 
@@ -403,6 +412,21 @@ public class UserPreferences
     public void setLoosePartSplitOnLoad(boolean value)
     {
         loosePartSplitOnLoad.set(value);
+    }
+
+    public boolean isKeepHeatersOnAfterPrint()
+    {
+        return keepHeatersOnAfterPrint.get();
+    }
+
+    public void setKeepHeatersOnAfterPrint(boolean value)
+    {
+        keepHeatersOnAfterPrint.set(value);
+    }
+
+    public BooleanProperty keepHeatersOnAfterPrintProperty()
+    {
+        return keepHeatersOnAfterPrint;
     }
 
     public BooleanProperty loosePartSplitOnLoadProperty()

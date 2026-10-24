@@ -34,6 +34,7 @@ public class UserPreferenceFile
     private boolean showMetricUnits = true;
     private boolean searchForRemoteCameras = true;
     private boolean loosePartSplitOnLoad = true;
+    private boolean keepHeatersOnAfterPrint = false;
     private boolean customPrinterEnabled = false;
     private PrinterType customPrinterType = PrinterType.ROBOX;
     private String customPrinterHead = HeadContainer.defaultHeadID;
@@ -218,6 +219,16 @@ public class UserPreferenceFile
         this.loosePartSplitOnLoad = loosePartSplitOnLoad;
     }
 
+    public boolean isKeepHeatersOnAfterPrint()
+    {
+        return keepHeatersOnAfterPrint;
+    }
+
+    public void setKeepHeatersOnAfterPrint(boolean keepHeatersOnAfterPrint)
+    {
+        this.keepHeatersOnAfterPrint = keepHeatersOnAfterPrint;
+    }
+
     public boolean isCustomPrinterEnabled() 
     {
         return customPrinterEnabled;
@@ -267,6 +278,7 @@ public class UserPreferenceFile
         setShowMetricUnits(userPreferences.isShowMetricUnits());
         setSearchForRemoteCameras(userPreferences.isSearchForRemoteCameras());
         setLoosePartSplitOnLoad(userPreferences.isLoosePartSplitOnLoad());
+        setKeepHeatersOnAfterPrint(userPreferences.isKeepHeatersOnAfterPrint());
         setCustomPrinterEnabled(userPreferences.isCustomPrinterEnabled());
         setCustomPrinterType(userPreferences.getCustomPrinterType());
         setCustomPrinterHead(userPreferences.getCustomPrinterHead());

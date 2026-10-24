@@ -56,6 +56,7 @@ import celtech.roboxbase.comms.tx.WriteReel1EEPROM;
 import celtech.roboxbase.configuration.BaseConfiguration;
 import celtech.roboxbase.configuration.Filament;
 import celtech.roboxbase.configuration.Macro;
+import celtech.roboxbase.configuration.PostPrintHeaterSettings;
 import celtech.roboxbase.configuration.datafileaccessors.FilamentContainer;
 import celtech.roboxbase.configuration.datafileaccessors.HeadContainer;
 import celtech.roboxbase.configuration.fileRepresentation.HeadFile;
@@ -921,8 +922,11 @@ public final class HardwarePrinter implements Printer, ErrorConsumer
         else
         {
 
-            switchBedHeaterOff();
-            switchAllNozzleHeatersOff();
+            if (!PostPrintHeaterSettings.isKeepHeatersOnAfterPrint())
+            {
+                switchBedHeaterOff();
+                switchAllNozzleHeatersOff();
+            }
 
             RoboxTxPacket abortPacket = RoboxTxPacketFactory.createPacket(TxPacketTypeEnum.ABORT_PRINT);
             try

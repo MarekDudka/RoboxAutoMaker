@@ -2,6 +2,7 @@ package celtech.roboxbase.printerControl.comms.commands;
 
 import celtech.roboxbase.configuration.BaseConfiguration;
 import celtech.roboxbase.configuration.Macro;
+import celtech.roboxbase.configuration.PostPrintHeaterSettings;
 import celtech.roboxbase.configuration.datafileaccessors.HeadContainer;
 import celtech.roboxbase.configuration.hardwarevariants.PrinterType;
 import celtech.roboxbase.printerControl.model.Printer;
@@ -184,6 +185,31 @@ public class GCodeMacros
         return contents;
     }
 
+    /**
+     * If the user has asked for the heaters to be left on after a print, neutralise the
+     * heater-off commands (and the door unlock's wait for the bed to cool) in the
+     * finish/abort macro.
+     */
+    private static String adjustForKeepHeatersOn(String macroName, String line)
+    {
+        if (!PostPrintHeaterSettings.isKeepHeatersOnAfterPrint()
+                || !macroName.startsWith("Finish-Abort_Print"))
+        {
+            return line;
+        }
+
+        String code = line.split(";", 2)[0].trim();
+        if (code.startsWith("M104") || code.startsWith("M140"))
+        {
+            return "; Heater left on (keep heaters on after print) - " + line;
+        }
+        if (code.equals("G37"))
+        {
+            return line.replaceFirst("G37", "G37 S");
+        }
+        return line;
+    }
+
     private static String cleanMacroName(String macroName)
     {
         return macroName.replaceFirst(macroDefinitionString, "").trim();
@@ -245,7 +271,7 @@ public class GCodeMacros
                         }
                     } else
                     {
-                        contents.add(line);
+                        contents.add(adjustForKeepHeatersOn(cleanedMacroName, line));
                     }
                 }
             } catch (FileNotFoundException ex)

@@ -84,12 +84,8 @@ public class Lookup
         steno.debug("Starting AutoMaker - get user preferences...");
         userPreferences = new UserPreferences(UserPreferenceContainer.getUserPreferenceFile());
 
-        Locale appLocale = getLocaleFromTag(userPreferences.getLanguageTag());
-
-        if (appLocale == null)
-        {
-            appLocale = BaseLookup.getDefaultApplicationLocale();
-        }
+        // This customised build is English only, regardless of user preference or system locale
+        Locale appLocale = Locale.ENGLISH;
         steno.debug("Application locale is \"" + appLocale + "\"");
         
         BaseLookup.setupDefaultValues(userPreferences.getLoggingLevel(),

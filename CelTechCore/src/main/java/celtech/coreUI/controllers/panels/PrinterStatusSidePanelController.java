@@ -2,6 +2,7 @@ package celtech.coreUI.controllers.panels;
 
 import celtech.Lookup;
 import celtech.appManager.ApplicationStatus;
+import celtech.coreUI.components.HeaterControlPane;
 import celtech.coreUI.components.material.MaterialComponent;
 import celtech.coreUI.components.printerstatus.PrinterGridComponent;
 import celtech.roboxbase.BaseLookup;
@@ -154,6 +155,8 @@ public class PrinterStatusSidePanelController implements Initializable, SidePane
     @FXML
     private VBox uberContainer;
 
+    private final HeaterControlPane heaterControlPane = new HeaterControlPane();
+
     private Printer previousSelectedPrinter = null;
 
     private final int MAX_DATA_POINTS = 210;
@@ -190,6 +193,8 @@ public class PrinterStatusSidePanelController implements Initializable, SidePane
     public void initialize(URL url, ResourceBundle rb)
     {
         chartManager = new ChartManager(temperatureChart);
+
+        uberContainer.getChildren().add(0, heaterControlPane);
 
         Lookup.getSelectedPrinterProperty().addListener(
                 (ObservableValue<? extends Printer> observable, Printer oldValue, Printer newValue) ->
@@ -296,6 +301,7 @@ public class PrinterStatusSidePanelController implements Initializable, SidePane
     private void bindPrinter(Printer printer)
     {
         currentAmbientTemperatureHistory = printer.getPrinterAncillarySystems().getAmbientTemperatureHistory();
+        heaterControlPane.setPrinter(printer);
         chartManager.setLegendLabels(legendBed, legendAmbient);
         chartManager.bindPrinter(printer);
 
@@ -351,6 +357,7 @@ public class PrinterStatusSidePanelController implements Initializable, SidePane
         graphAlternativeAmbientTemp.textProperty().unbind();
 
         currentAmbientTemperatureHistory = null;
+        heaterControlPane.setPrinter(null);
         chartManager.unbindPrinter();
 
         unbindMaterialContainer();
