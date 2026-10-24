@@ -55,8 +55,12 @@ public class HeaterControlPane extends VBox
     private final int[] lastNozzleTargets = new int[2];
     private int lastBedTarget = 0;
 
-    // Head fan switched on by us to cool the printer down at the end of a print
-    private boolean cooldownFanActive = false;
+    // Fans switched on by us to cool down: head fan for the head, ambient (bed area)
+    // fan for the bed
+    private boolean headFanActive = false;
+    private boolean bedFanActive = false;
+    /** Ambient target set to make the ambient fan run; ambient control is turned off afterwards */
+    private static final int COOLING_AMBIENT_TARGET_C = 20;
 
     public HeaterControlPane()
     {
@@ -73,9 +77,9 @@ public class HeaterControlPane extends VBox
         coolHeadButton.setText(text("heaterControl.coolHead", "Cool Head"));
         coolBedButton.setText(text("heaterControl.coolBed", "Cool Bed"));
         coolHeadButton.setOnAction(e -> confirmAndRun(
-                text("heaterControl.confirmCoolHead", "Switch off the head heater?"), () -> printer.switchAllNozzleHeatersOff()));
+                text("heaterControl.confirmCoolHead", "Switch off the head heater?"), () -> startHeadCooling()));
         coolBedButton.setOnAction(e -> confirmAndRun(
-                text("heaterControl.confirmCoolBed", "Switch off the bed heater?"), () -> printer.switchBedHeaterOff()));
+                text("heaterControl.confirmCoolBed", "Switch off the bed heater?"), () -> startBedCooling()));
 
         // Equal width buttons that fill their group
         for (Button button : new Button[]
@@ -156,7 +160,8 @@ public class HeaterControlPane extends VBox
         lastNozzleTargets[0] = 0;
         lastNozzleTargets[1] = 0;
         lastBedTarget = 0;
-        cooldownFanActive = false;
+        headFanActive = false;
+        bedFanActive = false;
         refresh();
     }
 
@@ -269,82 +274,80 @@ public class HeaterControlPane extends VBox
             startCooldownIfHot(head);
         }
 
-        manageCooldownFan(status, head);
+        manageCooldownFans(status, head);
         lastStatus = status;
     }
 
     /**
      * Keep warm is off, so the printer should cool down. If the print's G-code was
-     * generated while keep warm was on it has left the heaters on and the fan off,
-     * so switch the heaters off and run the head fan until everything has cooled.
+     * generated while keep warm was on it has left the heaters on and the fans off,
+     * so cool the head and the bed.
      */
     private void startCooldownIfHot(Head head)
     {
-        if (!isAnythingHot(head))
+        if (getMaxNozzleTemperature() >= HOT_THRESHOLD_C)
         {
-            return;
+            startHeadCooling();
         }
-        try
+        if (printer.getPrinterAncillarySystems().bedTemperatureProperty().get() >= HOT_THRESHOLD_C)
         {
-            if (head != null)
-            {
-                for (int i = 0; i < Math.min(2, head.getNozzleHeaters().size()); i++)
-                {
-                    if (head.getNozzleHeaters().get(i).heaterModeProperty().get() != HeaterMode.OFF)
-                    {
-                        printer.switchNozzleHeaterOff(i);
-                    }
-                }
-            }
-            if (printer.getPrinterAncillarySystems().bedHeaterModeProperty().get() != HeaterMode.OFF)
-            {
-                printer.switchBedHeaterOff();
-            }
-            printer.switchOnHeadFan();
-            cooldownFanActive = true;
-        } catch (PrinterException ex)
-        {
-            steno.warning("Couldn't start cool-down fan: " + ex.getMessage());
+            startBedCooling();
         }
     }
 
-    private void manageCooldownFan(PrinterStatus status, Head head)
+    /** Head heater off and head fan on until the head is cool */
+    private void startHeadCooling()
     {
-        if (!cooldownFanActive)
+        try
+        {
+            printer.switchAllNozzleHeatersOff();
+            printer.switchOnHeadFan();
+            headFanActive = true;
+        } catch (PrinterException ex)
+        {
+            steno.warning("Couldn't start head cooling: " + ex.getMessage());
+        }
+    }
+
+    /** Bed heater off and the ambient (bed area) fan on until the bed is cool */
+    private void startBedCooling()
+    {
+        printer.switchBedHeaterOff();
+        printer.setAmbientTemperature(COOLING_AMBIENT_TARGET_C);
+        bedFanActive = true;
+    }
+
+    private void manageCooldownFans(PrinterStatus status, Head head)
+    {
+        if (!headFanActive && !bedFanActive)
         {
             return;
         }
-        boolean stop = status != PrinterStatus.IDLE
-                || PostPrintHeaterSettings.isKeepHeatersOnAfterPrint()
-                || !isAnythingHot(head);
-        if (stop)
+        boolean idle = status == PrinterStatus.IDLE;
+
+        if (headFanActive && (!idle || getMaxNozzleTemperature() < HOT_THRESHOLD_C))
         {
-            cooldownFanActive = false;
-            if (status == PrinterStatus.IDLE)
+            headFanActive = false;
+            if (idle)
             {
                 try
                 {
                     printer.switchOffHeadFan();
                 } catch (PrinterException ex)
                 {
-                    steno.warning("Couldn't switch off cool-down fan: " + ex.getMessage());
+                    steno.warning("Couldn't switch off head fan: " + ex.getMessage());
                 }
             }
         }
-    }
-
-    private boolean isAnythingHot(Head head)
-    {
-        int nozzleTemp = 0;
-        if (head != null)
+        if (bedFanActive && (!idle
+                || printer.getPrinterAncillarySystems().bedTemperatureProperty().get() < HOT_THRESHOLD_C))
         {
-            for (NozzleHeater heater : head.getNozzleHeaters())
+            bedFanActive = false;
+            if (idle)
             {
-                nozzleTemp = Math.max(nozzleTemp, heater.nozzleTemperatureProperty().get());
+                printer.setAmbientTemperature(0); // ambient control off
             }
         }
-        return nozzleTemp >= HOT_THRESHOLD_C
-                || printer.getPrinterAncillarySystems().bedTemperatureProperty().get() >= HOT_THRESHOLD_C;
     }
 
     private void updateLED(boolean warn)
