@@ -41,13 +41,19 @@ public class HeaterControlPane extends VBox
     private static final Color WARNING_LED_COLOUR = Color.RED;
 
     private final Label warningLabel = new Label();
+    private final Label doorWarningLabel = new Label();
     private final Button coolHeadButton = new Button();
     private final Button coolBedButton = new Button();
+    private final Button unlockDoorButton = new Button();
     private final CheckBox keepWarmCheckBox = new CheckBox();
     private final Timeline refreshTimeline;
 
     private Printer printer = null;
     private boolean ledWarningActive = false;
+
+    // Door was unlocked from here during a print (the printer doesn't report lock state)
+    private boolean doorUnlockedByUs = false;
+    private boolean doorSeenOpen = false;
 
     // Heater targets seen while printing, used to restore them if the print's own
     // G-code switched the heaters off (it was generated before "keep warm" was enabled)
@@ -73,6 +79,20 @@ public class HeaterControlPane extends VBox
         coolBedButton.setOnAction(e -> confirmAndRun(
                 text("heaterControl.confirmCoolBed", "Switch off the bed heater?"), () -> printer.switchBedHeaterOff()));
 
+        unlockDoorButton.setText(text("heaterControl.unlockDoor", "Unlock Door"));
+        unlockDoorButton.setOnAction(e ->
+        {
+            if (printer != null)
+            {
+                // G37 S: unlock the door without waiting for the bed to cool.
+                // Sent as an immediate command, so the print carries on.
+                printer.sendRawGCode("G37 S", true);
+                doorUnlockedByUs = true;
+                doorSeenOpen = false;
+                refresh();
+            }
+        });
+
         HBox buttons = new HBox(8, coolHeadButton, coolBedButton);
         buttons.setAlignment(Pos.CENTER);
 
@@ -81,7 +101,15 @@ public class HeaterControlPane extends VBox
         keepWarmCheckBox.selectedProperty().bindBidirectional(
                 Lookup.getUserPreferences().keepHeatersOnAfterPrintProperty());
 
-        getChildren().addAll(warningLabel, buttons, keepWarmCheckBox);
+        doorWarningLabel.setStyle("-fx-text-fill: #ff0000; -fx-font-size: 12px; -fx-font-weight: bold;");
+        doorWarningLabel.setWrapText(true);
+        doorWarningLabel.setMaxWidth(260);
+        doorWarningLabel.setText(text("heaterControl.doorUnlocked",
+                "WARNING: door is unlocked/open while the printer is running!"));
+        doorWarningLabel.setVisible(false);
+        doorWarningLabel.setManaged(false);
+
+        getChildren().addAll(doorWarningLabel, warningLabel, buttons, unlockDoorButton, keepWarmCheckBox);
 
         refreshTimeline = new Timeline(new KeyFrame(Duration.seconds(1), e -> refresh()));
         refreshTimeline.setCycleCount(Timeline.INDEFINITE);
@@ -161,6 +189,29 @@ public class HeaterControlPane extends VBox
                 + text("heaterControl.bed", "Bed") + " " + bedTemp + "°C");
         warningLabel.setVisible(showWarning);
         warningLabel.setManaged(showWarning);
+
+        boolean printing = printer.printerStatusProperty().get() == PrinterStatus.PRINTING_PROJECT;
+        boolean doorOpenNow = printer.getPrinterAncillarySystems().doorOpenProperty().get();
+        if (!printing)
+        {
+            doorUnlockedByUs = false;
+            doorSeenOpen = false;
+        } else if (doorUnlockedByUs)
+        {
+            // Warning ends once the door has been opened and closed again
+            if (doorOpenNow)
+            {
+                doorSeenOpen = true;
+            } else if (doorSeenOpen)
+            {
+                doorUnlockedByUs = false;
+                doorSeenOpen = false;
+            }
+        }
+        boolean doorWarning = !idle && (doorUnlockedByUs || doorOpenNow);
+        doorWarningLabel.setVisible(doorWarning);
+        doorWarningLabel.setManaged(doorWarning);
+        unlockDoorButton.setDisable(!printing);
 
         coolHeadButton.setDisable(!(idle && nozzleHot));
         coolBedButton.setDisable(!(idle && bedHot));
