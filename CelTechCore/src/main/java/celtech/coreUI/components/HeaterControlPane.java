@@ -19,6 +19,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
@@ -64,13 +65,14 @@ public class HeaterControlPane extends VBox
     public HeaterControlPane()
     {
         setAlignment(Pos.CENTER);
-        setSpacing(4);
+        setSpacing(8);
         setPadding(new Insets(4, 0, 4, 0));
+        setPrefWidth(260);
         setMaxWidth(260);
 
         warningLabel.setStyle("-fx-text-fill: #ff661b; -fx-font-size: 12px; -fx-font-weight: bold;");
         warningLabel.setWrapText(true);
-        warningLabel.setMaxWidth(260);
+        warningLabel.setMaxWidth(240);
 
         coolHeadButton.setText(text("heaterControl.coolHead", "Cool Head"));
         coolBedButton.setText(text("heaterControl.coolBed", "Cool Bed"));
@@ -93,6 +95,17 @@ public class HeaterControlPane extends VBox
             }
         });
 
+        // Equal width buttons that fill their group
+        for (Button button : new Button[]
+        {
+            coolHeadButton, coolBedButton, unlockDoorButton
+        })
+        {
+            button.setMaxWidth(Double.MAX_VALUE);
+            button.setMinWidth(0);
+        }
+        HBox.setHgrow(coolHeadButton, Priority.ALWAYS);
+        HBox.setHgrow(coolBedButton, Priority.ALWAYS);
         HBox buttons = new HBox(8, coolHeadButton, coolBedButton);
         buttons.setAlignment(Pos.CENTER);
 
@@ -103,19 +116,42 @@ public class HeaterControlPane extends VBox
 
         doorWarningLabel.setStyle("-fx-text-fill: #ff0000; -fx-font-size: 12px; -fx-font-weight: bold;");
         doorWarningLabel.setWrapText(true);
-        doorWarningLabel.setMaxWidth(260);
+        doorWarningLabel.setMaxWidth(240);
         doorWarningLabel.setText(text("heaterControl.doorUnlocked",
                 "WARNING: door is unlocked/open while the printer is running!"));
         doorWarningLabel.setVisible(false);
         doorWarningLabel.setManaged(false);
 
-        getChildren().addAll(doorWarningLabel, warningLabel, buttons, unlockDoorButton, keepWarmCheckBox);
+        keepWarmCheckBox.setMaxWidth(Double.MAX_VALUE);
+
+        VBox heaterGroup = createGroup(text("heaterControl.groupHeaters", "Heaters"),
+                warningLabel, buttons, keepWarmCheckBox);
+        VBox doorGroup = createGroup(text("heaterControl.groupDoor", "Door"),
+                doorWarningLabel, unlockDoorButton);
+
+        getChildren().addAll(heaterGroup, doorGroup);
 
         refreshTimeline = new Timeline(new KeyFrame(Duration.seconds(1), e -> refresh()));
         refreshTimeline.setCycleCount(Timeline.INDEFINITE);
         refreshTimeline.play();
 
         setPrinter(null);
+    }
+
+    private static VBox createGroup(String title, javafx.scene.Node... content)
+    {
+        Label titleLabel = new Label(title);
+        titleLabel.setStyle("-fx-text-fill: #a8a8a8; -fx-font-size: 11px; -fx-font-weight: bold;");
+
+        VBox group = new VBox(6);
+        group.setAlignment(Pos.CENTER_LEFT);
+        group.setPadding(new Insets(6, 8, 8, 8));
+        group.setPrefWidth(260);
+        group.setMaxWidth(260);
+        group.setStyle("-fx-border-color: #5a5a5a; -fx-border-width: 1; -fx-border-radius: 3;");
+        group.getChildren().add(titleLabel);
+        group.getChildren().addAll(content);
+        return group;
     }
 
     /**
