@@ -95,6 +95,7 @@ public class PostProcessor
     private final List<NozzleProxy> nozzleProxies = new ArrayList<>();
 
     private final PostProcessorFeatureSet featureSet;
+    private final FlowLimiter flowLimiter;
 
     private PostProcessingMode postProcessingMode = PostProcessingMode.TASK_BASED_NOZZLE_SELECTION;
 
@@ -136,6 +137,9 @@ public class PostProcessor
         this.gcodeOutputFile = gcodeOutputFile;
         this.headFile = headFile;
         this.featureSet = postProcessorFeatureSet;
+        this.flowLimiter = new FlowLimiter(
+                settings.getSpecificFloatSettingWithDefault("maxVolumetricFlow_mm3_per_s", 0),
+                settings.getSpecificFloatSettingWithDefault("flowLimitMaxSpeed_mm_per_s", 80));
         this.settingsProfile = settings;
         this.taskProgress = taskProgress;
         this.printerOverrides = printerOverrides;
@@ -705,6 +709,9 @@ public class PostProcessor
         LayerPostProcessResult postProcessResult = determineLayerPostProcessResult(layerNode, lastLayerParseResult);
         postProcessResult.setLastObjectNumber(lastObjectNumber);
         timeUtils.timerStop(this, layerResultTimerName);
+
+        // Must run after all feedrates have been made explicit
+        flowLimiter.process(layerNode);
 
         return postProcessResult;
     }

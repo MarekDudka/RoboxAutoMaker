@@ -788,6 +788,11 @@ public class SettingsInsetPanelController implements Initializable, ProjectAware
                         .getRoboxProfileWithName(BaseConfiguration.fineSettingsProfileName, getSlicerType(), currentHeadType);
                 enableCustomChooser(false);
                 break;
+            case FAST:
+                settings = ROBOX_PROFILE_SETTINGS_CONTAINER
+                        .getRoboxProfileWithName(BaseConfiguration.fastSettingsProfileName, getSlicerType(), currentHeadType);
+                enableCustomChooser(false);
+                break;
             case CUSTOM:
                 settings = getCustomSettings();
                 enableCustomChooser(true);

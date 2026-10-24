@@ -61,6 +61,8 @@ public class TimeCostInsetPanelController implements Initializable, ProjectAware
     @FXML
     private Label lblFineTime;
     @FXML
+    private Label lblFastTime;
+    @FXML
     private Label lblCustomTime;
     @FXML
     private Label lblDraftWeight;
@@ -68,6 +70,8 @@ public class TimeCostInsetPanelController implements Initializable, ProjectAware
     private Label lblNormalWeight;
     @FXML
     private Label lblFineWeight;
+    @FXML
+    private Label lblFastWeight;
     @FXML
     private Label lblCustomWeight;
     @FXML
@@ -77,6 +81,8 @@ public class TimeCostInsetPanelController implements Initializable, ProjectAware
     @FXML
     private Label lblFineCost;
     @FXML
+    private Label lblFastCost;
+    @FXML
     private Label lblCustomCost;
     @FXML
     private RadioButton rbDraft;
@@ -84,6 +90,8 @@ public class TimeCostInsetPanelController implements Initializable, ProjectAware
     private RadioButton rbNormal;
     @FXML
     private RadioButton rbFine;
+    @FXML
+    private RadioButton rbFast;
     @FXML
     private RadioButton rbCustom;
     @FXML
@@ -101,6 +109,7 @@ public class TimeCostInsetPanelController implements Initializable, ProjectAware
     private List<PrintQualityEnumeration> sliceOrder = new ArrayList<>(Arrays.asList(PrintQualityEnumeration.NORMAL,
             PrintQualityEnumeration.DRAFT,
             PrintQualityEnumeration.FINE,
+            PrintQualityEnumeration.FAST,
             PrintQualityEnumeration.CUSTOM));
     
     private final TimeCostThreadManager timeCostThreadManager = TimeCostThreadManager.getInstance();
@@ -199,6 +208,8 @@ public class TimeCostInsetPanelController implements Initializable, ProjectAware
         rbNormal.setUserData(PrintQualityEnumeration.NORMAL);
         rbFine.setToggleGroup(qualityToggleGroup);
         rbFine.setUserData(PrintQualityEnumeration.FINE);
+        rbFast.setToggleGroup(qualityToggleGroup);
+        rbFast.setUserData(PrintQualityEnumeration.FAST);
         rbCustom.setToggleGroup(qualityToggleGroup);
         rbCustom.setUserData(PrintQualityEnumeration.CUSTOM);
         qualityToggleGroup.selectedToggleProperty().addListener(
@@ -262,6 +273,9 @@ public class TimeCostInsetPanelController implements Initializable, ProjectAware
             case FINE:
                 rbFine.setSelected(true);
                 break;
+            case FAST:
+                rbFast.setSelected(true);
+                break;
             case CUSTOM:
                 rbCustom.setSelected(true);
                 break;
@@ -285,14 +299,17 @@ public class TimeCostInsetPanelController implements Initializable, ProjectAware
             lblDraftTime.setText("...");
             lblNormalTime.setText("...");
             lblFineTime.setText("...");
+            lblFastTime.setText("...");
             lblCustomTime.setText("...");
             lblDraftWeight.setText("...");
             lblNormalWeight.setText("...");
             lblFineWeight.setText("...");
+            lblFastWeight.setText("...");
             lblCustomWeight.setText("...");
             lblDraftCost.setText("...");
             lblNormalCost.setText("...");
             lblFineCost.setText("...");
+            lblFastCost.setText("...");
             lblCustomCost.setText("...");
         });
 
@@ -319,6 +336,11 @@ public class TimeCostInsetPanelController implements Initializable, ProjectAware
                         updateFieldsForQuality(project, PrintQualityEnumeration.FINE, lblFineTime,
                             lblFineWeight,
                             lblFineCost, cancellable);
+                        break;
+                    case FAST:
+                        updateFieldsForQuality(project, PrintQualityEnumeration.FAST, lblFastTime,
+                            lblFastWeight,
+                            lblFastCost, cancellable);
                         break;
                     case CUSTOM:
                         if (!currentProject.getPrinterSettings().getSettingsName().equals(""))
@@ -441,6 +463,9 @@ public class TimeCostInsetPanelController implements Initializable, ProjectAware
                 break;
             case FINE:
                 rbFine.setSelected(true);
+                break;
+            case FAST:
+                rbFast.setSelected(true);
                 break;
             case CUSTOM:
                 rbCustom.setSelected(true);

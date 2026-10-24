@@ -141,6 +141,10 @@ public class PrinterSettingsOverrides
                 profileOption = ROBOX_PROFILE_SETTINGS_CONTAINER
                         .getRoboxProfileWithName(BaseConfiguration.fineSettingsProfileName, slicerType, headType);
                 break;
+            case FAST:
+                profileOption = ROBOX_PROFILE_SETTINGS_CONTAINER
+                        .getRoboxProfileWithName(BaseConfiguration.fastSettingsProfileName, slicerType, headType);
+                break;
             case CUSTOM:
                 profileOption = ROBOX_PROFILE_SETTINGS_CONTAINER
                         .getRoboxProfileWithName(customSettingsName.get(), slicerType, headType);

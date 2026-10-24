@@ -136,6 +136,7 @@ public class BaseConfiguration
     public static final String normalSettingsProfileName = "Normal";
 
     public static final String fineSettingsProfileName = "Fine";
+    public static final String fastSettingsProfileName = "Fast";
 
     public static final String macroFileExtension = ".gcode";
     public static final String macroFileSubpath = "Macros/";

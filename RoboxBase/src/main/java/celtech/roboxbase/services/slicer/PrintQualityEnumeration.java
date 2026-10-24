@@ -13,6 +13,8 @@ public enum PrintQualityEnumeration
 
     FINE("Fine"),
 
+    FAST("Fast"),
+
     CUSTOM("Custom");
 
     private final String friendlyName;
