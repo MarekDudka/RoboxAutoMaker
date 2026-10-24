@@ -192,13 +192,25 @@ public class GCodeMacros
      */
     private static String adjustForKeepHeatersOn(String macroName, String line)
     {
-        if (!PostPrintHeaterSettings.isKeepHeatersOnAfterPrint()
-                || !macroName.startsWith("Finish-Abort_Print"))
+        if (!macroName.startsWith("Finish-Abort_Print"))
         {
             return line;
         }
 
         String code = line.split(";", 2)[0].trim();
+
+        if (!PostPrintHeaterSettings.isKeepHeatersOnAfterPrint())
+        {
+            if (code.equals("M170 S0"))
+            {
+                // Keep the main (ambient) fan running to cool the printer after the print.
+                // AutoMaker switches ambient control off again (M170 S0) once it has cooled.
+                return "M170 S" + PostPrintHeaterSettings.COOLING_AMBIENT_TARGET_C
+                        + "\t\t;Ambient fan keeps cooling - was: " + line;
+            }
+            return line;
+        }
+
         if (code.startsWith("M104") || code.startsWith("M140"))
         {
             return "; Heater left on (keep heaters on after print) - " + line;

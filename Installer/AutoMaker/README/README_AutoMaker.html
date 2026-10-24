@@ -35,7 +35,13 @@
         navigating to the About page (press the question mark icon) and
         then click on 'View README'.<br>
       </font>
-	  <p><font face="sans-serif">Current version: <b>4.03.04</b></font></p>
+	  <p><font face="sans-serif">Current version: <b>4.03.05</b></font></p>
+	  <p><font face="sans-serif"><u>Version 4.03.05<br></u></font></p>
+	  <ul>
+		<li><font face="sans-serif">Fix automatic cool-down after a print (with 'Keep warm' off) not starting when the printer details were rebound at the end of the print. Cool-down steps are now written to the log.</font></li>
+		<li><font face="sans-serif">With 'Keep warm' off, the end-of-print macro now keeps the main (ambient) fan running (M170 S20) instead of switching it off; AutoMaker switches it off again once the bed is cool.</font></li>
+		<li><font face="sans-serif">The 'Heaters' panel (Cool Head / Cool Bed) is only shown while 'Keep warm after print' is on, and that option is now only in Extras &gt; Printing.</font></li>
+	  </ul>
 	  <p><font face="sans-serif"><u>Version 4.03.04<br></u></font></p>
 	  <ul>
 		<li><font face="sans-serif">Add 'No Active Bed Cooling' option (Extras &gt; Printing). The bed stays at the first layer temperature for the whole print, so the printer does not run its fan at full speed to cool the bed after the first layer.</font></li>

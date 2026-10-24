@@ -8,6 +8,9 @@ package celtech.roboxbase.configuration;
  */
 public class PostPrintHeaterSettings
 {
+    /** Ambient target that makes the printer's main fan run to cool the bed area */
+    public static final int COOLING_AMBIENT_TARGET_C = 20;
+
     private static volatile boolean keepHeatersOnAfterPrint = false;
 
     private static volatile boolean keepFirstLayerBedTemperature = false;

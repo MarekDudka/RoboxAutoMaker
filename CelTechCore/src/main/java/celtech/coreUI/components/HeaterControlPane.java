@@ -16,7 +16,6 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -44,10 +43,10 @@ public class HeaterControlPane extends VBox
     private final Label warningLabel = new Label();
     private final Button coolHeadButton = new Button();
     private final Button coolBedButton = new Button();
-    private final CheckBox keepWarmCheckBox = new CheckBox();
     private final Timeline refreshTimeline;
 
     private Printer printer = null;
+    private Printer trackedPrinter = null;
     private boolean ledWarningActive = false;
     // Heater targets seen while printing, used to restore them if the print's own
     // G-code switched the heaters off (it was generated before "keep warm" was enabled)
@@ -60,7 +59,7 @@ public class HeaterControlPane extends VBox
     private boolean headFanActive = false;
     private boolean bedFanActive = false;
     /** Ambient target set to make the ambient fan run; ambient control is turned off afterwards */
-    private static final int COOLING_AMBIENT_TARGET_C = 20;
+    private static final int COOLING_AMBIENT_TARGET_C = PostPrintHeaterSettings.COOLING_AMBIENT_TARGET_C;
 
     public HeaterControlPane()
     {
@@ -95,15 +94,8 @@ public class HeaterControlPane extends VBox
         HBox buttons = new HBox(8, coolHeadButton, coolBedButton);
         buttons.setAlignment(Pos.CENTER);
 
-        keepWarmCheckBox.setText(text("heaterControl.keepWarm", "Keep warm after print"));
-        keepWarmCheckBox.setStyle("-fx-text-fill: white;");
-        keepWarmCheckBox.selectedProperty().bindBidirectional(
-                Lookup.getUserPreferences().keepHeatersOnAfterPrintProperty());
-
-        keepWarmCheckBox.setMaxWidth(Double.MAX_VALUE);
-
         VBox heaterGroup = createGroup(text("heaterControl.groupHeaters", "Heaters"),
-                warningLabel, buttons, keepWarmCheckBox);
+                warningLabel, buttons);
         getChildren().addAll(heaterGroup);
 
         refreshTimeline = new Timeline(new KeyFrame(Duration.seconds(1), e -> refresh()));
@@ -156,12 +148,19 @@ public class HeaterControlPane extends VBox
             restoreLED();
         }
         printer = newPrinter;
-        lastStatus = null;
-        lastNozzleTargets[0] = 0;
-        lastNozzleTargets[1] = 0;
-        lastBedTarget = 0;
-        headFanActive = false;
-        bedFanActive = false;
+        // The status panel unbinds and rebinds the same printer when printer details
+        // change (for example at the end of a print), so only reset what we have
+        // tracked when it is really a different printer.
+        if (newPrinter != null && newPrinter != trackedPrinter)
+        {
+            trackedPrinter = newPrinter;
+            lastStatus = null;
+            lastNozzleTargets[0] = 0;
+            lastNozzleTargets[1] = 0;
+            lastBedTarget = 0;
+            headFanActive = false;
+            bedFanActive = false;
+        }
         refresh();
     }
 
@@ -206,8 +205,11 @@ public class HeaterControlPane extends VBox
         coolHeadButton.setDisable(!(idle && nozzleHot));
         coolBedButton.setDisable(!(idle && bedHot));
 
-        setVisible(true);
-        setManaged(true);
+        // The panel is only shown while 'Keep warm after print' is on; the cool-down
+        // logic above keeps running either way
+        boolean show = PostPrintHeaterSettings.isKeepHeatersOnAfterPrint();
+        setVisible(show);
+        setManaged(show);
 
         updateLED(showWarning && PostPrintHeaterSettings.isKeepHeatersOnAfterPrint());
     }
@@ -285,6 +287,7 @@ public class HeaterControlPane extends VBox
      */
     private void startCooldownIfHot(Head head)
     {
+        steno.info("Print ended with keep warm off - cooling down hot parts");
         if (getMaxNozzleTemperature() >= HOT_THRESHOLD_C)
         {
             startHeadCooling();
@@ -298,6 +301,7 @@ public class HeaterControlPane extends VBox
     /** Head heater off and head fan on until the head is cool */
     private void startHeadCooling()
     {
+        steno.info("Cooling head: heater off, head fan on");
         try
         {
             printer.switchAllNozzleHeatersOff();
@@ -312,6 +316,7 @@ public class HeaterControlPane extends VBox
     /** Bed heater off and the ambient (bed area) fan on until the bed is cool */
     private void startBedCooling()
     {
+        steno.info("Cooling bed: heater off, ambient fan on");
         printer.switchBedHeaterOff();
         printer.setAmbientTemperature(COOLING_AMBIENT_TARGET_C);
         bedFanActive = true;
