@@ -1,7 +1,7 @@
 M83					;Set Extruder to Relative moves
 M140 E				;Set post layer 1 target from reel.
 M139 E				;Set & heat first layer Bed temp.
-M170 E				;Set Ambient temp.
+M170 S0				;Ambient control off while the bed heats up
 
 Macro:Home_all_Axis_in_sequence
 
@@ -18,5 +18,6 @@ Macro:Short_Purge
 
 G0 X105 Y75 Z5		;Centre head and prime
 M190				;Wait for bed to reach target temp (a precaution - it should have got there by now)
+M170 E				;Set Ambient temp. (after bed has reached temp so the fan does not fight the bed heater)
 G1 E0.5 F400		;Prime
 M129				;Head LED on
