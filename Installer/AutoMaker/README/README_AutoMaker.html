@@ -35,6 +35,17 @@
         navigating to the About page (press the question mark icon) and
         then click on 'View README'.<br>
       </font>
+	  <p><font face="sans-serif">Current version: <b>4.03.03</b></font></p>
+	  <p><font face="sans-serif"><u>Version 4.03.03<br></u></font></p>
+	  <ul>
+		<li><font face="sans-serif">Add 'Keep warm after print' option (Extras &gt; Printing and a checkbox in the printer status panel) to leave the head and bed heated after a print or cancel. Heaters that the print's G-code switched off but that are still hot are restored when the print ends.</font></li>
+		<li><font face="sans-serif">Add heater controls to the printer status panel: hot warning, 'Cool Head' and 'Cool Bed' buttons (with confirmation) that switch the heater off and run the matching fan, and a red LED while the printer is hot with 'Keep warm' on.</font></li>
+		<li><font face="sans-serif">With 'Keep warm' off, cool the head and bed with their fans at the end of a print and stop each fan when it is cool.</font></li>
+		<li><font face="sans-serif">Add 'Fast' print quality for all heads (Cura and Cura4), with its own row in the estimates panel. Inner perimeters, infill, solid fill and support are faster; outer walls, top surfaces, bridges and the first layer are unchanged.</font></li>
+		<li><font face="sans-serif">Add optional volumetric flow limiter to the post-processor (maxVolumetricFlow_mm3_per_s, off by default, 5 mm3/s in the Fast profile).</font></li>
+		<li><font face="sans-serif">AutoMaker is English only.</font></li>
+		<li><font face="sans-serif">AppImage: add --add-opens java.base/java.lang so G-code post-processing works on Java 21.</font></li>
+	  </ul>
 	  <p><font face="sans-serif"><u>Version 4.02.00<br></u></font></p>
 	  <ul>
 		<li><font face="sans-serif">Add timelapse photo facility using USB camera on Root.</font></li>
