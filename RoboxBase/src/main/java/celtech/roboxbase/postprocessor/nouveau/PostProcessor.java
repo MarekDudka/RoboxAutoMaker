@@ -15,6 +15,7 @@ import celtech.roboxbase.postprocessor.NozzleProxy;
 import celtech.roboxbase.postprocessor.PrintJobStatistics;
 import celtech.roboxbase.postprocessor.RoboxiserResult;
 import celtech.roboxbase.postprocessor.nouveau.filamentSaver.FilamentSaver;
+import celtech.roboxbase.configuration.PostPrintHeaterSettings;
 import celtech.roboxbase.postprocessor.nouveau.nodes.GCodeEventNode;
 import celtech.roboxbase.postprocessor.nouveau.nodes.LayerNode;
 import celtech.roboxbase.postprocessor.nouveau.nodes.MCodeNode;
@@ -417,11 +418,20 @@ public class PostProcessor
                             outputUtilities.outputSingleMaterialNozzleTemperatureCommands(writer, nozzle0HeatRequired, nozzle1HeatRequired, eRequired, dRequired);
                         }
 
-                        //Always output the bed temperature command at layer 1
-                        MCodeNode bedTemp = new MCodeNode(140);
-                        bedTemp.setCommentText("Go to bed temperature from loaded reel - don't wait");
-                        writer.writeOutput(bedTemp.renderForOutput());
-                        writer.newLine();
+                        if (PostPrintHeaterSettings.isKeepFirstLayerBedTemperature())
+                        {
+                            // Stay at the first layer bed temperature so the printer doesn't
+                            // actively cool the bed with its fan when the target drops
+                            writer.writeOutput("; Bed kept at first layer temperature");
+                            writer.newLine();
+                        } else
+                        {
+                            //Always output the bed temperature command at layer 1
+                            MCodeNode bedTemp = new MCodeNode(140);
+                            bedTemp.setCommentText("Go to bed temperature from loaded reel - don't wait");
+                            writer.writeOutput(bedTemp.renderForOutput());
+                            writer.newLine();
+                        }
                     }
                     outputUtilities.writeLayerToFile(resultToBeProcessed.getLayerData(), writer);
                     timeUtils.timerStop(this, writeOutputTimerName);

@@ -35,6 +35,7 @@ public class UserPreferenceFile
     private boolean searchForRemoteCameras = true;
     private boolean loosePartSplitOnLoad = true;
     private boolean keepHeatersOnAfterPrint = false;
+    private boolean keepFirstLayerBedTemperature = false;
     private boolean customPrinterEnabled = false;
     private PrinterType customPrinterType = PrinterType.ROBOX;
     private String customPrinterHead = HeadContainer.defaultHeadID;
@@ -219,6 +220,16 @@ public class UserPreferenceFile
         this.loosePartSplitOnLoad = loosePartSplitOnLoad;
     }
 
+    public boolean isKeepFirstLayerBedTemperature()
+    {
+        return keepFirstLayerBedTemperature;
+    }
+
+    public void setKeepFirstLayerBedTemperature(boolean keepFirstLayerBedTemperature)
+    {
+        this.keepFirstLayerBedTemperature = keepFirstLayerBedTemperature;
+    }
+
     public boolean isKeepHeatersOnAfterPrint()
     {
         return keepHeatersOnAfterPrint;
@@ -279,6 +290,7 @@ public class UserPreferenceFile
         setSearchForRemoteCameras(userPreferences.isSearchForRemoteCameras());
         setLoosePartSplitOnLoad(userPreferences.isLoosePartSplitOnLoad());
         setKeepHeatersOnAfterPrint(userPreferences.isKeepHeatersOnAfterPrint());
+        setKeepFirstLayerBedTemperature(userPreferences.isKeepFirstLayerBedTemperature());
         setCustomPrinterEnabled(userPreferences.isCustomPrinterEnabled());
         setCustomPrinterType(userPreferences.getCustomPrinterType());
         setCustomPrinterHead(userPreferences.getCustomPrinterHead());

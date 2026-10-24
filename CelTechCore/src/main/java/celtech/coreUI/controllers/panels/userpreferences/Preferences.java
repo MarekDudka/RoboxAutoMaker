@@ -42,6 +42,8 @@ public class Preferences
         preferences.add(safetyFeaturesOnPref);
         preferences.add(detectFilamentLoadedPref);
         preferences.add(keepHeatersOnPref);
+        preferences.add(new TickBoxPreference(userPreferences.keepFirstLayerBedTemperatureProperty(),
+                "preferences.keepFirstLayerBedTemperature"));
 
         return preferences;
     }

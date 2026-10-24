@@ -10,6 +10,23 @@ public class PostPrintHeaterSettings
 {
     private static volatile boolean keepHeatersOnAfterPrint = false;
 
+    private static volatile boolean keepFirstLayerBedTemperature = false;
+
+    /**
+     * When set, the bed stays at the first layer temperature for the whole print.
+     * Otherwise the bed target is lowered after the first layer and the printer
+     * actively cools the bed with its fan to reach it.
+     */
+    public static boolean isKeepFirstLayerBedTemperature()
+    {
+        return keepFirstLayerBedTemperature;
+    }
+
+    public static void setKeepFirstLayerBedTemperature(boolean keep)
+    {
+        keepFirstLayerBedTemperature = keep;
+    }
+
     public static boolean isKeepHeatersOnAfterPrint()
     {
         return keepHeatersOnAfterPrint;

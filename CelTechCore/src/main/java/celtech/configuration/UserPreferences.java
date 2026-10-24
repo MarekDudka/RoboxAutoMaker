@@ -48,6 +48,7 @@ public class UserPreferences
     private final BooleanProperty searchForRemoteCameras = new SimpleBooleanProperty(true);
     private final BooleanProperty loosePartSplitOnLoad = new SimpleBooleanProperty(false);
     private final BooleanProperty keepHeatersOnAfterPrint = new SimpleBooleanProperty(false);
+    private final BooleanProperty keepFirstLayerBedTemperature = new SimpleBooleanProperty(false);
     private final BooleanProperty autoGCodePreview = new SimpleBooleanProperty(true);
     private final BooleanProperty customPrinterEnabled = new SimpleBooleanProperty(false);
     private final ObjectProperty<PrinterType> customPrinterType = new SimpleObjectProperty<>(PrinterType.ROBOX);
@@ -122,6 +123,8 @@ public class UserPreferences
         loosePartSplitOnLoad.set(userPreferenceFile.isLoosePartSplitOnLoad());
         keepHeatersOnAfterPrint.set(userPreferenceFile.isKeepHeatersOnAfterPrint());
         PostPrintHeaterSettings.setKeepHeatersOnAfterPrint(keepHeatersOnAfterPrint.get());
+        keepFirstLayerBedTemperature.set(userPreferenceFile.isKeepFirstLayerBedTemperature());
+        PostPrintHeaterSettings.setKeepFirstLayerBedTemperature(keepFirstLayerBedTemperature.get());
         customPrinterEnabled.set(userPreferenceFile.isCustomPrinterEnabled());
         customPrinterType.set(userPreferenceFile.getCustomPrinterType());
         customPrinterHead.set(userPreferenceFile.getCustomPrinterHead());
@@ -140,6 +143,11 @@ public class UserPreferences
         showMetricUnits.addListener(booleanChangeListener);
         searchForRemoteCameras.addListener(booleanChangeListener);
         loosePartSplitOnLoad.addListener(booleanChangeListener);
+        keepFirstLayerBedTemperature.addListener((observable, oldValue, newValue) ->
+        {
+            PostPrintHeaterSettings.setKeepFirstLayerBedTemperature(newValue);
+            saveSettings();
+        });
         keepHeatersOnAfterPrint.addListener((observable, oldValue, newValue) ->
         {
             PostPrintHeaterSettings.setKeepHeatersOnAfterPrint(newValue);
@@ -412,6 +420,21 @@ public class UserPreferences
     public void setLoosePartSplitOnLoad(boolean value)
     {
         loosePartSplitOnLoad.set(value);
+    }
+
+    public boolean isKeepFirstLayerBedTemperature()
+    {
+        return keepFirstLayerBedTemperature.get();
+    }
+
+    public void setKeepFirstLayerBedTemperature(boolean value)
+    {
+        keepFirstLayerBedTemperature.set(value);
+    }
+
+    public BooleanProperty keepFirstLayerBedTemperatureProperty()
+    {
+        return keepFirstLayerBedTemperature;
     }
 
     public boolean isKeepHeatersOnAfterPrint()
